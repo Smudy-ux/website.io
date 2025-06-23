@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password - Kitchen Pro</title>
+    <!-- This script includes Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind CSS with custom brand colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-orange': '#ff7f50',
+                        'brand-orange-dark': '#e66a3d',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <!-- Logo linking back to home page -->
+        <a href="index.html" class="text-3xl font-bold text-gray-800 mb-6">
+            🔪 Kitchen Pro
+        </a>
+
+        <!-- Forgot Password Form Card -->
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Reset Your Password</h2>
+            <p class="text-center text-gray-500 mb-8">Enter your email and we'll send you a reset link.</p>
+
+            <!-- Placeholder for Status Messages (Success or Error) -->
+            <div id="statusMessage" class="text-sm text-center mb-4">
+                <!-- Firebase messages will appear here -->
+            </div>
+
+            <form id="resetForm">
+                <!-- Email Input -->
+                <div class="mb-6">
+                    <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange" required>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-brand-orange text-white py-3 rounded-md font-semibold hover:bg-brand-orange-dark transition-colors">
+                    Send Reset Link
+                </button>
+            </form>
+
+            <!-- Link to Login -->
+            <div class="text-center text-sm text-gray-600 mt-6">
+                <p>
+                    Remembered your password?
+                    <a href="login.html" class="text-brand-orange hover:underline font-semibold">Back to Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase script to handle form submission -->
+    <script type="module">
+        // 1. Initialize Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1CMQtB7b9Qc5nz7UicPnR2P8MHRUUwY8",
+            authDomain: "website-b2082.firebaseapp.com",
+            projectId: "website-b2082",
+            storageBucket: "website-b2082.appspot.com", // Corrected storage bucket name
+            messagingSenderId: "565304389579",
+            appId: "1:565304389579:web:32481c371a2ae60ebc904e",
+            measurementId: "G-9V4Z3CRH0Q"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // 2. Add event listener to the form
+        const resetForm = document.getElementById('resetForm');
+        const statusMessage = document.getElementById('statusMessage');
+
+        resetForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = resetForm.email.value;
+
+            console.log("Attempting to send password reset to:", email);
+            statusMessage.textContent = ''; // Clear previous messages
+            statusMessage.classList.remove('text-green-500', 'text-red-500');
+
+            // 3. Call Firebase password reset function
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    console.log("Password reset email sent.");
+                    statusMessage.textContent = 'Success! Please check your email inbox for a reset link.';
+                    statusMessage.classList.add('text-green-500');
+                    resetForm.reset(); // Clear the form
+                })
+                .catch((error) => {
+                    console.error("Password reset failed:", error.message);
+                    // Check for common errors
+                    if (error.code === 'auth/user-not-found') {
+                         statusMessage.textContent = 'No account found with this email address.';
+                    } else {
+                         statusMessage.textContent = 'Could not send reset email. Please try again.';
+                    }
+                    statusMessage.classList.add('text-red-500');
+                });
+        });
+    </script>
+
+</body>
+</html>

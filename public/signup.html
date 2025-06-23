@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Kitchen Pro</title>
+    <!-- This script includes Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind CSS with custom brand colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-orange': '#ff7f50',
+                        'brand-orange-dark': '#e66a3d',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto p-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-gray-800">
+                🔪 Kitchen Pro
+            </div>
+            <ul class="hidden md:flex items-center space-x-8">
+                <li><a href="index.html" class="text-gray-600 hover:text-brand-orange transition-colors">Home</a></li>
+                <li><a href="#products" class="text-gray-600 hover:text-brand-orange transition-colors">Products</a></li>
+                <li><a href="#contact" class="text-gray-600 hover:text-brand-orange transition-colors">Contact</a></li>
+                <li><a href="login.html" class="bg-brand-orange text-white py-2 px-5 rounded-md hover:bg-brand-orange-dark transition-colors">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="min-h-screen flex flex-col items-center justify-center py-8">
+        <!-- Logo linking back to home page -->
+        <a href="index.html" class="text-3xl font-bold text-gray-800 mb-6">
+            🔪 Kitchen Pro
+        </a>
+
+        <!-- Signup Form Card -->
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Create Your Account</h2>
+            <p class="text-center text-gray-500 mb-8">Get started with Kitchen Pro today!</p>
+
+            <!-- Placeholder for Signup Errors -->
+            <div id="signupError" class="text-red-500 text-sm text-center mb-4">
+                <!-- Firebase error messages will appear here -->
+            </div>
+
+            <form id="signupForm">
+                <!-- Full Name Input -->
+                <div class="mb-4">
+                    <label for="fullName" class="block text-gray-700 text-sm font-semibold mb-2">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="John Doe" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange" required>
+                </div>
+                
+                <!-- Email Input -->
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange" required>
+                </div>
+
+                <!-- Password Input -->
+                <div class="mb-6">
+                    <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Must be at least 6 characters" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange" required>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-brand-orange text-white py-3 rounded-md font-semibold hover:bg-brand-orange-dark transition-colors">
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Link to Login -->
+            <div class="text-center text-sm text-gray-600 mt-6">
+                <p>
+                    Already have an account? 
+                    <a href="login.html" class="text-brand-orange hover:underline font-semibold">Log In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      NEXT STEP: Add your Firebase script below to handle form submission.
+      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    -->
+    <script type="module">
+        // 1. Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        
+        // 2. Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1CMQtB7b9Qc5nz7UicPnR2P8MHRUUwY8",
+            authDomain: "website-b2082.firebaseapp.com",
+            projectId: "website-b2082",
+            storageBucket: "website-b2082.appspot.com",
+            messagingSenderId: "565304389579",
+            appId: "1:565304389579:web:32481c371a2ae60ebc904e",
+            measurementId: "G-9V4Z3CRH0Q"
+        };
+
+        // 3. Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // 4. Add event listener to the form
+        const signupForm = document.getElementById('signupForm');
+        const signupError = document.getElementById('signupError');
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = signupForm.fullName.value;
+            const email = signupForm.email.value;
+            const password = signupForm.password.value;
+
+            signupError.textContent = ''; // Clear previous errors
+
+            // 5. Call Firebase create user function
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                console.log("Successfully created user:", user.uid);
+
+                // 6. Save user's details to Firestore in a 'users' collection
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: fullName,
+                    email: email,
+                    address: "" // Address can be collected later
+                });
+
+                console.log("User profile created in Firestore.");
+                // Redirect to the home page on successful signup
+                window.location.href = 'index.html'; 
+
+            } catch (error) {
+                console.error("Signup failed:", error.code, error.message);
+                
+                // Provide user-friendly error messages based on the error code
+                if (error.code === 'auth/email-already-in-use') {
+                    signupError.textContent = 'This email address is already registered.';
+                } else if (error.code === 'auth/weak-password') {
+                    signupError.textContent = 'Password must be at least 6 characters long.';
+                } else {
+                    signupError.textContent = 'An error occurred during signup. Please try again.';
+                }
+            }
+        });
+    </script>
+
+
+</body>
+</html>
